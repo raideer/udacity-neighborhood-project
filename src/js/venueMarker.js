@@ -18,12 +18,14 @@ module.exports =  class VenueMarker extends google.maps.OverlayView {
     		div = this.div = document.createElement('div');
             div.className = 'icon-location2 marker';
 
-            let rating = document.createElement('span');
-            rating.className = 'badge';
-            rating.appendChild(document.createTextNode(this.item.venue.rating));
-            rating.style.backgroundColor = "#" + this.item.venue.ratingColor;
+            if (this.item.venue.rating) {
+                let rating = document.createElement('span');
+                rating.className = 'badge';
+                rating.appendChild(document.createTextNode(this.item.venue.rating));
+                rating.style.backgroundColor = "#" + this.item.venue.ratingColor;
 
-            div.appendChild(rating);
+                div.appendChild(rating);
+            }
 
     		google.maps.event.addDomListener(div, "click", event => {
     			google.maps.event.trigger(this, "click", {

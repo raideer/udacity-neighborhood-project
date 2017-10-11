@@ -3,38 +3,13 @@ import eachOf from 'async/eachOf';
 
 let VenueMarker;
 let map;
-let activeInfoWindow;
-
-const venueInfoWindows = {};
 
 const foursquareAuth = {
     id: 'XRYRBFDPCQ3RJPBPUVH3LWG31LO2RIGHADDC541HGU3SYBSB',
     secret: '4AIOCYXHZXHGH1T5F0BAKPOUTLQFRMMTBF2KR1RFUYPHAETL'
 }
 
-/**
- * Asynchronosly preloads all image urls
- * @param  {array} images Array of image urls
- * @return {array}
- */
-async function loadImages(images) {
-    return new Promise(resolve => {
-        const loaded = [];
-
-        eachOf(images, (image, key, cb) => {
-            let img = new Image();
-            img.src = image;
-            img.onload = () => {
-                loaded.push(image);
-                cb();
-            };
-        }, () => {
-            return resolve(loaded);
-        });
-    })
-}
-
-async function getFoursquareSuggestions() {
+async function getFoursquareSuggestions(section = 'topPicks') {
     var date = new Date();
     var v = String(date.getUTCFullYear()) + String(date.getUTCMonth() + 1) + String(date.getUTCDate());
 
@@ -44,15 +19,10 @@ async function getFoursquareSuggestions() {
             client_secret: foursquareAuth.secret,
             near: 'Vecrīga, Latvia',
             limit: 50,
+            section: section,
             v: v
         });
 
-        // for (let i in data.response.groups[0].items) {
-        //     let item = data.response.groups[0].items[i];
-        //
-        //     createVenueMarker(item);
-        //
-        // }
         return data.response.groups[0].items;
     } catch (e) {
         alert('Something went wrong with retrieving Foursquare venue data');
@@ -124,28 +94,74 @@ export default class ViewModel {
         });
 
         this.venueMarkers = [];
-        this.venues = ko.observable([]);
+        this.venues = [];
+        this.categories = [
+            {
+                id: 'topPicks',
+                name: 'Top picks'
+            }, {
+                id: 'food',
+                name: 'Food'
+            }, {
+                id: 'drinks',
+                name: 'Drinks'
+            }, {
+                id: 'coffee',
+                name: 'Cofee',
+            }, {
+                id: 'shops',
+                name: 'Shops'
+            }, {
+                id: 'outdoors',
+                name: 'Outdoors'
+            }, {
+                id: 'sights',
+                name: 'Sights'
+            }
+        ];
+
         this.activeVenue = ko.observable(null);
         this.showModal = ko.observable(false);
+        this.activeCategory = ko.observable('topPicks');
         this.venueImages = {};
 
-        getFoursquareSuggestions().then(suggestions => {
-            for (let i in suggestions) {
-                this.createVenueMarker(suggestions[i]);
-                this.venues().push(suggestions[i]);
-            }
-        });
+        this.showSuggestions();
+
+        this.changeSuggestions = category => {
+            console.log('Changing suggestions to', category);
+            this.showSuggestions(category);
+        }
 
         this.photos = () => {
-
             if (this.activeVenue() && this.venueImages[this.activeVenue().venue.id]) {
-                console.log(this.venueImages[this.activeVenue().venue.id]);
-
                 return this.venueImages[this.activeVenue().venue.id];
             }
 
             return [];
         };
+    }
+
+    showSuggestions(category = 'topPicks') {
+        this.venues = [];
+
+        this.clearVenueMarkers();
+
+        getFoursquareSuggestions(category).then(suggestions => {
+            for (let i in suggestions) {
+                this.createVenueMarker(suggestions[i]);
+                this.venues.push(suggestions[i]);
+            }
+
+            this.activeCategory(category);
+        });
+    }
+
+    clearVenueMarkers() {
+        for (let i in this.venueMarkers) {
+            this.venueMarkers[i].setMap(null);
+        }
+
+        this.venueMarkers = [];
     }
 
     closeVenueMarkers() {
@@ -173,26 +189,6 @@ export default class ViewModel {
 
             this.activeVenue(item);
             this.showModal(true);
-
-            // if (!venueInfoWindows[venueId]) {
-            //     const photos = await getVenueImages(venueId);
-            //     const photoUrls = photos.items.map(photo => {
-            //         return `${photo.prefix}width300${photo.suffix}`;
-            //     });
-            //
-            //     const images = await loadImages(photoUrls);
-            //
-            //     console.log(images.length)
-            //
-            //     let infoWindow = new google.maps.InfoWindow({
-            //         pixelOffset: new google.maps.Size(12,10),
-            //         content: venueTooltip({item: event.marker.item, images})
-            //     });
-            //
-            //     venueInfoWindows[venueId] = infoWindow;
-            // }
-            //
-            // venueInfoWindows[venueId].open(map, marker);
         });
 
         this.venueMarkers.push(marker);

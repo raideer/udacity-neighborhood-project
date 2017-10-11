@@ -8,7 +8,7 @@
     <div class="container-fluid">
 
         <nav class="navbar navbar-expand-lg navbar-dark bg-darker">
-            <a class="navbar-brand" href="#">Riga Old Town guide</a>
+            <a class="navbar-brand" href="/">Riga Old Town guide</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#togglable" aria-controls="togglable" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -16,14 +16,10 @@
             <div class="collapse navbar-collapse" id="togglable">
 
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a data-bind="click: alert" class="nav-link" href="#">Home</a>
-                    </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#">Disabled</a>
+                        <div class="btn-group" role="group" aria-label="Basic example" data-bind="foreach: categories">
+                            <button type="button" class="btn btn-light" data-bind="text: $data.name, click: $parent.changeSuggestions.bind(this, $data.id), css: {active: $parent.activeCategory() == $data.id}"></button>
+                        </div>
                     </li>
                 </ul>
             </div>
