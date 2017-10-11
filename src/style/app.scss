@@ -1,0 +1,119 @@
+@import "~bootstrap/scss/bootstrap";
+@import "style";
+
+$bgDark: #0e1626;
+$markerColor: #69bfff;
+$markerHighlight: #ff008a;
+
+html, body, .container-fluid {
+    height: 100%;
+    background-color: $bgDark;
+}
+
+.navbar {
+    &.bg-darker {
+        background-color: $bgDark !important;
+    }
+}
+
+#map {
+    height: calc(100% - 54px);
+}
+
+.marker {
+    position: absolute;
+    cursor: pointer;
+    font-size: 24px;
+    color: $markerColor;
+
+    animation-name: bounce;
+    animation-duration: 1s;
+    animation-iteration-count: 1;
+    transform-origin: center bottom;
+    transition: color 0.4s;
+
+    &.marker-open {
+        color: $markerHighlight;
+
+        .badge {
+            opacity: 0;
+        }
+    }
+
+    .badge {
+        position: absolute;
+        left: 0;
+        width: 24px;
+        top: -5px;
+        text-shadow: none;
+        font-size: 0.5em;
+        transition: opacity 0.4s;
+    }
+
+    &:hover {
+        animation-name: pulse;
+        animation-duration: 0.5s;
+        animation-iteration-count: infinite;
+    }
+}
+
+#pictures {
+    margin: 20px 0;
+}
+
+.carousel-inner > .carousel-item > img {
+    display: block;
+    margin: 0 auto;
+}
+
+.carousel {
+    background-color: $bgDark;
+}
+
+.title-inline {
+    text-transform: uppercase;
+    display: inline-block;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: #888888;
+}
+
+.venueInfo {
+    font-size: 1.2em;
+    padding: 10px;
+}
+
+@keyframes bounce {
+  from, 20%, 53%, 80%, to {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    transform: translate3d(0,0,0);
+  }
+
+  40%, 43% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -5px, 0);
+  }
+
+  70% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -3px, 0);
+  }
+
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale3d(1, 1, 1);
+  }
+
+  50% {
+    transform: scale3d(1.05, 1.05, 1.05);
+  }
+
+  to {
+    transform: scale3d(1, 1, 1);
+  }
+}
