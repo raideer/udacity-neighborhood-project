@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Neighbourhood Map</title>
+    <title>Neighbourhood Map Project</title>
 </head>
 <body>
     <div class="container-fluid">
@@ -14,12 +14,61 @@
             </button>
 
             <div class="collapse navbar-collapse" id="togglable">
-
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <div class="btn-group" role="group" aria-label="Basic example" data-bind="foreach: categories">
-                            <button type="button" class="btn btn-light" data-bind="text: $data.name, click: $parent.changeSuggestions.bind(this, $data.id), css: {active: $parent.activeCategory() == $data.id}"></button>
+                        <div class="dropdown">
+                            <button
+                                class="btn dropdown-toggle"
+                                type="button"
+                                data-toggle="dropdown"
+                                data-bind="css: {'btn-primary': activeCategory() != null, 'btn-secondary': activeCategory() == null}">
+                                <!-- ko if: activeCategory() != null -->
+                                    <span data-bind="text: getCategoryName(activeCategory())"></span>
+                                <!-- /ko -->
+                                <!-- ko if: activeCategory() == null-->
+                                    Suggestions
+                                <!-- /ko -->
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" data-bind="foreach: categories">
+                                <button type="button" class="dropdown-item" data-bind="text: $data.name, click: $parent.changeSuggestions.bind(this, $data.id), css: {active: $parent.activeCategory() == $data.id}">Action</button>
+                            </div>
                         </div>
+                    </li>
+                    <li class="nav-item">
+                        <div class="input-group">
+                            <input id="place-search" class="form-control" type="text" placeholder="Hotel / Restaurant ..." aria-label="Search">
+                            <span class="input-group-btn">
+                                <button
+                                    class="btn"
+                                    type="button"
+                                    data-bind="
+                                        click: toggleNeighborhoodLimit,
+                                        css: {'btn-primary': limitToNeighborhood(), 'btn-secondary': !limitToNeighborhood()}
+                                    ">
+                                    <!-- ko if: limitToNeighborhood() -->
+                                        Limiting to Old Riga
+                                    <!-- /ko -->
+                                    <!-- ko ifnot: limitToNeighborhood() -->
+                                        Limiting to map bounds
+                                    <!-- /ko -->
+                                </button>
+                            </span>
+                        </div>
+                    </li>
+                    <li>
+                        <button
+                            class="btn btn-primary"
+                            data-bind="
+                                click: toggleClosedFilter,
+                                css: {'btn-primary': showingClosed(), 'btn-secondary': !showingClosed()}
+                            ">
+                            <!-- ko if: showingClosed() -->
+                                Hide closed
+                            <!-- /ko -->
+                            <!-- ko ifnot: showingClosed() -->
+                                Show closed
+                            <!-- /ko -->
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -27,13 +76,34 @@
         <div id="map"></div>
     </div>
 
-    <div class="modal" id="modal" data-bind="modal: showModal">
-        <div class="modal-dialog" role="document" data-bind="if: activeVenue()">
+    <!-- ko if: activeAlert() -->
+    <div class="modal" data-bind="modal: showAlertModal">
+        <div class="modal-dialog">
+            <div class="modal-content" data-bind="with: activeAlert()">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-bind="text: title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p data-bind="text: body"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-alert" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: activeVenue() -->
+    <div class="modal" data-bind="modal: showVenueModal">
+        <div class="modal-dialog" role="document">
             <div class="modal-content" data-bind="with: activeVenue">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <span class="badge" data-bind="text: venue.rating, style: {backgroundColor: '#' + venue.ratingColor}"></span>
-                        <span data-bind="text: venue.name"></span>
+                            <span class="badge" data-bind="text: venue.rating, style: {backgroundColor: '#' + venue.ratingColor}"></span>
+                            <span data-bind="text: venue.name"></span>
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -44,20 +114,20 @@
                         <li class="list-inline-item"><span class="badge badge-light" data-bind="text: name"></span></li>
                     </ul>
 
-                    <div id="pictures" class="carousel slide" data-ride="carousel">
+                    <div id="venuePictures" class="carousel slide" data-ride="carousel">
                         <ol class="carousel-indicators" data-bind="foreach: $parent.photos()">
-                            <li data-target="#pictures" data-bind="attr: {'data-slide-to': $index}"></li>
+                            <li data-target="#venuePictures" data-bind="attr: {'data-slide-to': $index}"></li>
                         </ol>
                         <div class="carousel-inner" data-bind="foreach: $parent.photos()">
                             <div class="carousel-item" data-bind="if: $data, css: { 'active': $index() == 0 }">
                                 <img data-bind="attr: {src: $data}" alt="First slide">
                             </div>
                         </div>
-                        <a class="carousel-control-prev" href="#pictures" role="button" data-slide="prev">
+                        <a class="carousel-control-prev" href="#venuePictures" role="button" data-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="sr-only">Previous</span>
                         </a>
-                        <a class="carousel-control-next" href="#pictures" role="button" data-slide="next">
+                        <a class="carousel-control-next" href="#venuePictures" role="button" data-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="sr-only">Next</span>
                         </a>
@@ -65,34 +135,36 @@
 
                     <address>
                         <strong data-bind="text: venue.name"></strong>
-                        <span data-bind="with: venue.hours">
+                        <!-- ko with: venue.hours -->
                             <span data-bind="if: isOpen" class="badge badge-success">Open</span>
                             <span data-bind="ifnot: isOpen" class="badge badge-danger">Closed</span>
-                        </span>
+                        <!-- /ko -->
                         <br>
-                        <span data-bind="if: venue.contact.facebook">
+                        <!-- ko if: venue.contact.facebook -->
                             <a data-bind="attr: {href: 'https://www.facebook.com/' + venue.contact.facebookUsername}">
                                 <span class="icon-facebook2"></span>
                                 <span data-bind="text: venue.contact.facebookName"></span>
                             </a>
                             <br>
-                        </span>
-                        <span data-bind="if: venue.contact.twitter">
+                        <!-- /ko -->
+
+                        <!-- ko if: venue.contact.twitter -->
                             <a data-bind="attr: {href: 'https://www.twitter.com/' + venue.contact.twitter}">
                                 <span class="icon-twitter"></span>
                                 <span data-bind="text: '@' + venue.contact.twitter"></span>
                             </a>
                             <br>
-                        </span>
-                        <span data-bind="if: venue.url">
+                        <!-- /ko -->
+
+                        <!-- ko if: venue.url -->
                             <a data-bind="attr: {href: venue.url}, text: venue.url"></a>
                             <br>
-                        </span>
-                        <span data-bind="if: venue.location.formattedAddress">
+                        <!-- /ko -->
+
+                        <!-- ko if: venue.location.formattedAddress -->
                             <span data-bind="text: venue.location.formattedAddress.join(' ')"></span>
                             <br>
-                        </span>
-
+                        <!-- /ko -->
                     </address>
                 </div>
                 <div class="modal-footer">
@@ -101,11 +173,135 @@
             </div>
         </div>
     </div>
+    <!-- /ko -->
+    <!-- ko if: activePlace() -->
+    <div class="modal" data-bind="modal: showPlaceModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" data-bind="with: activePlace()">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <span class="badge badge-success" data-bind="text: rating"></span>
+                        <span data-bind="text: name"></span>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-inline" data-bind="foreach: types.slice(0, 4)">
+                        <li class="list-inline-item"><span class="badge badge-light" data-bind="text: $root.prettifyCategory($data)"></span></li>
+                    </ul>
+
+                    <div id="placePictures" class="carousel slide" data-ride="carousel" data-bind="if: $data.photos != 'undefined'">
+                        <ol class="carousel-indicators" data-bind="foreach: photos">
+                            <li data-target="#placePictures" data-bind="attr: {'data-slide-to': $index}"></li>
+                        </ol>
+
+                        <div class="carousel-inner" data-bind="foreach: photos">
+                            <div class="carousel-item active" data-bind="css: { 'active': $index() == 0 }">
+                                <img data-bind="attr: {src: $data.getUrl({maxHeight: 300})}">
+                            </div>
+                        </div>
+
+                        <a class="carousel-control-prev" href="#placePictures" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#placePictures" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                    <address>
+                        <strong data-bind="text: name"></strong>
+
+                        <!-- ko if: $data.opening_hours -->
+                            <span data-bind="if: opening_hours.open_now" class="badge badge-success">Open</span>
+                            <span data-bind="ifnot: opening_hours.open_now" class="badge badge-danger">Closed</span>
+
+                            <!-- ko if: $data.opening_hours.weekday_text -->
+                                <br>
+                                <strong>Opening hours</strong>
+                                <br>
+                                <!-- ko foreach: opening_hours.weekday_text -->
+                                    <span data-bind="text: $data"></span>
+                                    <br>
+                                <!-- /ko -->
+                            <!-- /ko -->
+                        <!-- /ko -->
+                        <br>
+
+                        <!-- ko if: $data.international_phone_number -->
+                            <span class="icon-phone"></span>
+                            <span data-bind="text: international_phone_number"></span>
+                            <br>
+                        <!-- /ko -->
+
+                        <!-- ko if: $data.website -->
+                            <a data-bind="attr: {href: website}, text: website"></a>
+                            <br>
+                        <!-- /ko -->
+
+                        <!-- ko if: $data.formatted_address -->
+                            <span data-bind="text: formatted_address"></span>
+                            <br>
+                        <!-- /ko -->
+                    </address>
+
+                    <div id="placeReviewsContainer" data-bind="if: $data.reviews">
+                        <button
+                            class="btn btn-sm"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target="#placesReviews"
+                            data-bind="
+                                click: $root.showingPlaceReviews.bind(this, !$root.showingPlaceReviews()),
+                                css: {'btn-primary': !$root.showingPlaceReviews(), 'btn-secondary': $root.showingPlaceReviews()}
+                            "
+                            >
+                            <!-- ko ifnot: $root.showingPlaceReviews() -->
+                                Show reviews
+                            <!-- /ko -->
+
+                            <!-- ko if: $root.showingPlaceReviews() -->
+                                Hide reviews
+                            <!-- /ko -->
+                        </button>
+                        <div class="collapse" id="placesReviews" data-bind="foreach: reviews">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <img data-bind="attr: {src: profile_photo_url}" style="max-width:40px;" class="rounded">
+                                        <span data-bind="text: author_name"></span>
+                                    </h5>
+                                    <p class="card-text">
+                                        <!-- ko foreach: new Array(rating)-->
+                                            <span class="icon-star-full"></span>
+                                        <!-- /ko -->
+                                        <!-- ko foreach: new Array(5 - rating)-->
+                                            <span class="icon-star-empty"></span>
+                                        <!-- /ko -->
+                                        <br>
+                                        <span data-bind="text: text"></span>
+                                    </p>
+                                    <p class="text-muted" data-bind="text: relative_time_description"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /ko -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
     <script src="assets/app.bundle.js"></script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDvfFbB8rocODu8p0DMEa8mitvvtgxoPtM&callback=initApp&libraries=drawing">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDvfFbB8rocODu8p0DMEa8mitvvtgxoPtM&callback=initApp&libraries=places">
     </script>
 </body>
 </html>

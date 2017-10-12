@@ -20,6 +20,36 @@ html, body, .container-fluid {
     height: calc(100% - 54px);
 }
 
+#place-search {
+    min-width: 150px;
+}
+
+.nav-item {
+    padding-right: 10px;
+}
+
+#placeReviewsContainer {
+    .btn {
+        margin-bottom: 10px;
+    }
+
+    .card {
+        margin-bottom: 5px;
+    }
+
+    .card-body {
+        padding: 5px;
+    }
+
+    p:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .icon-star-full {
+        color: #EB6E00;
+    }
+}
+
 .marker {
     position: absolute;
     cursor: pointer;
@@ -34,10 +64,14 @@ html, body, .container-fluid {
     transition: color 0.4s;
 
     &.marker-open {
-        color: $markerHighlight;
+        animation-name: highlightText;
+        animation-duration: 1.5s;
+        animation-iteration-count: infinite;
 
         .badge {
-            opacity: 0;
+            animation-name: highlightShadow;
+            animation-duration: 1.5s;
+            animation-iteration-count: infinite;
         }
     }
 
@@ -60,10 +94,6 @@ html, body, .container-fluid {
     }
 }
 
-#pictures {
-    margin: 20px 0;
-}
-
 .carousel-inner > .carousel-item > img {
     display: block;
     margin: 0 auto;
@@ -71,6 +101,7 @@ html, body, .container-fluid {
 
 .carousel {
     background-color: $bgDark;
+    margin: 20px 0;
 }
 
 .title-inline {
@@ -84,6 +115,34 @@ html, body, .container-fluid {
 .venueInfo {
     font-size: 1.2em;
     padding: 10px;
+}
+
+@keyframes highlightShadow {
+    from {
+        box-shadow: 0 0 5px 2px $markerHighlight;
+    }
+
+    50% {
+        box-shadow: 0 0 1px 0 $markerHighlight;
+    }
+
+    to {
+        box-shadow: 0 0 5px 2px $markerHighlight;
+    }
+}
+
+@keyframes highlightText {
+    from {
+        text-shadow: 0 0 5px $markerHighlight;
+    }
+
+    50% {
+        text-shadow: 0 0 1px $markerHighlight;
+    }
+
+    to {
+        text-shadow: 0 0 5px $markerHighlight;
+    }
 }
 
 @keyframes bounce {
