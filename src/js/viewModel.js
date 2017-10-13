@@ -1,5 +1,4 @@
 import mapStyle from './mapstyle.js';
-import eachOf from 'async/eachOf';
 
 let VenueMarker;
 let map;
@@ -11,10 +10,7 @@ let neighborhoodBounds;
 const foursquareAuth = {
     id: 'XRYRBFDPCQ3RJPBPUVH3LWG31LO2RIGHADDC541HGU3SYBSB',
     secret: '4AIOCYXHZXHGH1T5F0BAKPOUTLQFRMMTBF2KR1RFUYPHAETL'
-}
-
-// Google api auth key
-const googleKey = 'AIzaSyDvfFbB8rocODu8p0DMEa8mitvvtgxoPtM';
+};
 
 // This is the main (and only) view model
 export default class ViewModel {
@@ -118,7 +114,7 @@ export default class ViewModel {
         searchBox.addListener('places_changed', () => {
             let places = searchBox.getPlaces();
 
-            if (places.length == 0) {
+            if (places.length === 0) {
                 this.showAlert('Nothing found', 'We did not find anything with that criteria');
                 return;
             }
@@ -131,12 +127,11 @@ export default class ViewModel {
 
             places.forEach(place => {
                 if (!place.geometry) {
-                    console.log('Place contains no geometry');
+                    console.warn('Place contains no geometry');
                     return;
                 }
 
                 if (this.limitToNeighborhood() && !neighborhoodBounds.contains(place.geometry.location)) {
-                    console.log('Location outside the area');
                     return;
                 }
 
@@ -161,7 +156,7 @@ export default class ViewModel {
                 placesFound++;
             });
 
-            if (placesFound == 0) {
+            if (placesFound === 0) {
                 this.showAlert('Nothing found', 'We did not find anything with that criteria in this area');
                 map.fitBounds(neighborhoodBounds);
             } else {
@@ -175,7 +170,7 @@ export default class ViewModel {
         // Used to change the Foursquare suggestions category
         this.changeSuggestions = category => {
             this.showSuggestions(category);
-        }
+        };
     }
 
     // Hides or shows places/venues that are closed (opening hours)
@@ -246,20 +241,20 @@ export default class ViewModel {
         rating = Math.ceil(rating);
 
         switch(rating) {
-            case 10:
-                return '#22d60e';
-            case 9:
-                return '#7cd60d';
-            case 8:
-                return '#99d60c';
-            case 7:
-                return '#c1d60c';
-            case 6:
-                return '#e5be10';
-            case 5:
-                return '#e59610';
-            default:
-                return '#e54c10';
+        case 10:
+            return '#22d60e';
+        case 9:
+            return '#7cd60d';
+        case 8:
+            return '#99d60c';
+        case 7:
+            return '#c1d60c';
+        case 6:
+            return '#e5be10';
+        case 5:
+            return '#e59610';
+        default:
+            return '#e54c10';
         }
     }
 
@@ -322,8 +317,7 @@ export default class ViewModel {
         let marker = new VenueMarker(item, map);
 
         marker.addListener('click', async event => {
-            const item = event.marker.item;
-
+            const markerItem = event.marker.item;
             // Removes marker-open class from all markers
             this.closeMarkers();
             // Adds marker-open class to this marker
@@ -332,7 +326,7 @@ export default class ViewModel {
             // Checking whether the marker contains google places object or
             // Foursquare venue object
             if (event.marker.isPlace) {
-                const placeId = event.marker.item.place_id;
+                const placeId = markerItem.place_id;
 
                 // Checking if we already have details saved for this place
                 if (!this.placeDetails[placeId]) {
@@ -353,24 +347,24 @@ export default class ViewModel {
             } else {
 
                 // Checking if we already have pictures for this venue
-                if (!this.venueImages[item.venue.id]) {
-                    const photos = await getVenueImages(item.venue.id);
+                if (!this.venueImages[markerItem.venue.id]) {
+                    const photos = await getVenueImages(markerItem.venue.id);
                     const photoUrls = photos.items.map(photo => {
                         return `${photo.prefix}height300${photo.suffix}`;
                     });
 
-                    this.venueImages[item.venue.id] = photoUrls;
+                    this.venueImages[markerItem.venue.id] = photoUrls;
                 }
 
                 this.clearModals();
-                this.activeVenue(item);
+                this.activeVenue(markerItem);
                 this.showVenueModal(true);
             }
         });
 
         this.markers.push(marker);
     }
-};
+}
 
 // https://stackoverflow.com/questions/22706765/twitter-bootstrap-3-modal-with-knockout
 ko.bindingHandlers.modal = {
@@ -394,7 +388,7 @@ ko.bindingHandlers.modal = {
             $(element).modal('hide');
         }
     }
-}
+};
 
 // Fetches Foursquare suggestions
 // Making use of the es2017 async/await expressions
@@ -417,7 +411,6 @@ async function getFoursquareSuggestions(section = 'topPicks') {
     } catch (e) {
         alert('Something went wrong with retrieving Foursquare venue data');
         throw e;
-        return;
     }
 }
 
@@ -448,6 +441,5 @@ async function getVenueImages(venueId, limit = 10) {
     } catch (e) {
         alert('Something went wrong with retrieving venue pictures');
         throw e;
-        return;
     }
 }

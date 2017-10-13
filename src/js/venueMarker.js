@@ -14,17 +14,17 @@ module.exports =  class VenueMarker extends google.maps.OverlayView {
             this.latlng = new google.maps.LatLng(item.venue.location.lat, item.venue.location.lng);
         }
 
-    	this.item = item;
-    	this.setMap(map);
+        this.item = item;
+        this.setMap(map);
     }
 
 
     draw() {
-    	let div = this.div;
+        let div = this.div;
 
-    	if (!div) {
+        if (!div) {
 
-    		div = this.div = document.createElement('div');
+            div = this.div = document.createElement('div');
             div.className = 'icon-location2 marker';
 
             if (this.isPlace) {
@@ -41,41 +41,41 @@ module.exports =  class VenueMarker extends google.maps.OverlayView {
                     let rating = document.createElement('span');
                     rating.className = 'badge';
                     rating.appendChild(document.createTextNode(this.item.venue.rating));
-                    rating.style.backgroundColor = "#" + this.item.venue.ratingColor;
+                    rating.style.backgroundColor = '#' + this.item.venue.ratingColor;
 
                     div.appendChild(rating);
                 }
             }
 
-    		google.maps.event.addDomListener(div, "click", event => {
-    			google.maps.event.trigger(this, "click", {
+            google.maps.event.addDomListener(div, '', event => {
+                google.maps.event.trigger(this, 'click', {
                     marker: this,
                     e: event
                 });
-    		});
+            });
 
 
-    		let panes = this.getPanes();
-    		panes.overlayImage.appendChild(div);
-    	}
+            let panes = this.getPanes();
+            panes.overlayImage.appendChild(div);
+        }
 
         // The icon is 24px big, so we want to offset x by -12 and y by -24
         // so that the the marker is just above the location
-    	let point = this.getProjection().fromLatLngToDivPixel(this.latlng);
-    	if (point) {
-    		div.style.left = point.x - 12 + 'px';
-    		div.style.top = point.y - 24 + 'px';
-    	}
+        let point = this.getProjection().fromLatLngToDivPixel(this.latlng);
+        if (point) {
+            div.style.left = point.x - 12 + 'px';
+            div.style.top = point.y - 24 + 'px';
+        }
     }
 
     remove() {
         if (this.div) {
-    		this.div.parentNode.removeChild(this.div);
-    		this.div = null;
-    	}
+            this.div.parentNode.removeChild(this.div);
+            this.div = null;
+        }
     }
 
     getPosition() {
         return this.latlng;
     }
-}
+};
