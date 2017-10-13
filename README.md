@@ -27,8 +27,7 @@ After making changes to the project, you'll have to run the bundler for changes
 to appear in the browser. You can do that by running `npm run build` or `npm run watch` which will watch for any changes to the project and run the builder automatically.
 
 ### 5. Linting
-This project uses ES2017 features, so you'll have to use [**eslint**](https://eslint.org) if you wish to lint this project.
-Config is already included (see .eslintrc)
+You can run the linter with `npm run lint`
 
 # Preview images
 ![Default suggestions](https://i.imgur.com/03hq2a4.png)
