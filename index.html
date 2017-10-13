@@ -43,7 +43,8 @@
                                     type="button"
                                     data-bind="
                                         click: toggleNeighborhoodLimit,
-                                        css: {'btn-primary': limitToNeighborhood(), 'btn-secondary': !limitToNeighborhood()}
+                                        css: {'btn-primary': limitToNeighborhood(), 'btn-secondary': !limitToNeighborhood()},
+                                        attr: {title: limitToNeighborhood()?'Only showing results in Old Riga':'Showing results biased to current viewport'}
                                     ">
                                     <!-- ko if: limitToNeighborhood() -->
                                         Limiting to Old Riga
@@ -114,7 +115,7 @@
                         <li class="list-inline-item"><span class="badge badge-light" data-bind="text: name"></span></li>
                     </ul>
 
-                    <div id="venuePictures" class="carousel slide" data-ride="carousel">
+                    <div id="venuePictures" class="carousel slide" data-ride="carousel" data-bind="if: $parent.photos()">
                         <ol class="carousel-indicators" data-bind="foreach: $parent.photos()">
                             <li data-target="#venuePictures" data-bind="attr: {'data-slide-to': $index}"></li>
                         </ol>
@@ -192,7 +193,7 @@
                         <li class="list-inline-item"><span class="badge badge-light" data-bind="text: $root.prettifyCategory($data)"></span></li>
                     </ul>
 
-                    <div id="placePictures" class="carousel slide" data-ride="carousel" data-bind="if: $data.photos != 'undefined'">
+                    <div id="placePictures" class="carousel slide" data-ride="carousel" data-bind="if: $data.photos">
                         <ol class="carousel-indicators" data-bind="foreach: photos">
                             <li data-target="#placePictures" data-bind="attr: {'data-slide-to': $index}"></li>
                         </ol>
@@ -271,7 +272,9 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">
-                                        <img data-bind="attr: {src: profile_photo_url}" style="max-width:40px;" class="rounded">
+                                        <!-- ko if: $data.profile_photo_url -->
+                                            <img data-bind="attr: {src: profile_photo_url}" style="max-width:40px;" class="rounded">
+                                        <!-- /ko -->
                                         <span data-bind="text: author_name"></span>
                                     </h5>
                                     <p class="card-text">
