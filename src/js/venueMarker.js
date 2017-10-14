@@ -47,7 +47,7 @@ module.exports =  class VenueMarker extends google.maps.OverlayView {
                 }
             }
 
-            google.maps.event.addDomListener(div, '', event => {
+            google.maps.event.addDomListener(div, 'click', event => {
                 google.maps.event.trigger(this, 'click', {
                     marker: this,
                     e: event
