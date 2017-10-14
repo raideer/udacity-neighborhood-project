@@ -8,7 +8,7 @@ const initApp = () => {
 };
 
 const handleErrors = () => {
-    alert('Something went wrong with loading Google Maps. Please try again later');
+    alert('Something went wrong with loading Google Maps. Refresh the page and try again');
 };
 
 window.initApp = initApp;
