@@ -1,3 +1,5 @@
+const uuid = require('uuid/v1');
+
 /**
  * Custom marker based on https://humaan.com/blog/custom-html-markers-google-maps/
  */
@@ -5,6 +7,13 @@
 module.exports =  class VenueMarker extends google.maps.OverlayView {
     constructor(item, map) {
         super();
+
+        // Assigning a unique id to each marker, so items later can refer to
+        // their markers
+        this.id = uuid();
+        item.markerRef = this.id;
+        item.visible = true;
+
         // Checking if item is a google places object or foursquare venue object
         item.isPlace = this.isPlace = item.hasOwnProperty('place_id');
 

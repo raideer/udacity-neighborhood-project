@@ -26,7 +26,7 @@ export default class ViewModel {
         this.limitToNeighborhood = ko.observable(true);
 
         // Holds all markers
-        this.markers = [];
+        this.markers = {};
 
         // Foursquare category filters
         this.categories = [
@@ -61,6 +61,8 @@ export default class ViewModel {
         this.showPlaceModal = ko.observable(false);
         this.showAlertModal = ko.observable(false);
         this.showVenueModal = ko.observable(false);
+
+        this.listItems = ko.observableArray();
 
         // Used for hiding or showing places that are closed
         this.showingClosed = ko.observable(true);
@@ -183,12 +185,14 @@ export default class ViewModel {
                 if (marker.isPlace) {
                     if (marker.item.opening_hours) {
                         if (!marker.item.opening_hours.open_now) {
+                            this.hideOrShowListItem(marker.id);
                             marker.setMap(null);
                         }
                     }
                 } else {
                     if (marker.item.venue.hours) {
                         if (!marker.item.venue.hours.isOpen) {
+                            this.hideOrShowListItem(marker.id);
                             marker.setMap(null);
                         }
                     }
@@ -198,6 +202,7 @@ export default class ViewModel {
             for(let i in this.markers) {
                 let marker = this.markers[i];
                 if (!marker.getMap()) {
+                    this.hideOrShowListItem(i, true);
                     marker.setMap(map);
                 }
             }
@@ -223,6 +228,26 @@ export default class ViewModel {
         }
     }
 
+    hideOrShowListItem(markerId, show = false) {
+        let item = this.listItems().find(test => test.markerRef == markerId);
+        // Cloning the item to avoid keeping reference to the original object
+        let newItem = Object.assign({}, item);
+        newItem.visible = show;
+        this.listItems.replace(item, newItem);
+    }
+
+    highlightMarker(markerId) {
+        for (let i in this.markers) {
+            if (i == markerId) {
+                this.markers[i].div.classList.add('marker-open');
+                map.panTo(this.markers[i].getPosition());
+                map.setZoom(17);
+            } else {
+                this.markers[i].div.classList.remove('marker-open');
+            }
+        }
+    }
+
     // Returns list of photos for the active (open) venue
     photos() {
         if (this.activeVenue()) {
@@ -242,19 +267,19 @@ export default class ViewModel {
 
         switch(rating) {
         case 10:
-            return '#22d60e';
+            return '#00b551';
         case 9:
-            return '#7cd60d';
+            return '#00b551';
         case 8:
-            return '#99d60c';
+            return '#73cf42';
         case 7:
-            return '#c1d60c';
+            return '#b5cf42';
         case 6:
-            return '#e5be10';
+            return '#cfae42';
         case 5:
-            return '#e59610';
+            return '#c65e2d';
         default:
-            return '#e54c10';
+            return '#cf4242';
         }
     }
 
@@ -281,8 +306,9 @@ export default class ViewModel {
             this.markers[i].setMap(null);
         }
 
-        this.markers = [];
+        this.markers = {};
         this.showingClosed(true);
+        this.listItems([]);
     }
 
     closeMarkers() {
@@ -362,7 +388,8 @@ export default class ViewModel {
             }
         });
 
-        this.markers.push(marker);
+        this.markers[marker.id] = marker;
+        this.listItems.push(marker.item);
     }
 }
 

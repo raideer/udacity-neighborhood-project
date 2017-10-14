@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Neighbourhood Map Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     <div class="container-fluid">
 
         <nav class="navbar navbar-expand-lg navbar-dark bg-darker">
-            <a class="navbar-brand" href="/">Riga Old Town guide</a>
+            <a class="navbar-brand" href="#">Riga Old Town guide</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#togglable" aria-controls="togglable" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -56,7 +57,7 @@
                             </span>
                         </div>
                     </li>
-                    <li>
+                    <li class="nav-item">
                         <button
                             class="btn btn-primary"
                             data-bind="
@@ -64,7 +65,7 @@
                                 css: {'btn-primary': showingClosed(), 'btn-secondary': !showingClosed()}
                             ">
                             <!-- ko if: showingClosed() -->
-                                Hide closed
+                                Filter closed
                             <!-- /ko -->
                             <!-- ko ifnot: showingClosed() -->
                                 Show closed
@@ -74,7 +75,36 @@
                 </ul>
             </div>
         </nav>
-        <div id="map"></div>
+        <div class="row" id="content">
+            <div class="col-12 order-2 order-md-1 col-md-4">
+                <div id="itemList" class="list-group mh-100" data-bind="foreach: listItems()">
+                        <a href="#" class="list-group-item" data-bind="click: $root.highlightMarker.bind($root, $data.markerRef), visible: $data.visible">
+                            <!-- ko if: isPlace -->
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <!-- ko if: rating -->
+                                        <span style="min-width: 30px;" class="badge" data-bind="text: rating, style: {backgroundColor: ratingColor}"></span>
+                                    <!-- /ko -->
+                                    <span data-bind="text: name"></span>
+                                </h6>
+                            </div>
+                            <!-- /ko -->
+                            <!-- ko ifnot: isPlace -->
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <!-- ko if: venue.rating -->
+                                        <span style="min-width: 30px;" class="badge" data-bind="text: venue.rating, style: {backgroundColor: '#' + venue.ratingColor}"></span>
+                                    <!-- /ko -->
+                                    <span data-bind="text: venue.name"></span>
+                                </h6>
+                                <small data-bind="text: venue.categories[0].name"></small>
+                            </div>
+                            <!-- /ko -->
+                        </a>
+                </div>
+            </div>
+            <div id="map" class="col order-1 order-md-2"></div>
+        </div>
     </div>
 
     <!-- ko if: activeAlert() -->
