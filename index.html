@@ -79,17 +79,17 @@
             <div class="col-12 order-2 order-md-1 col-md-4">
                 <div id="itemList" class="list-group mh-100" data-bind="foreach: listItems()">
                         <a href="#" class="list-group-item" data-bind="click: $root.highlightMarker.bind($root, $data.markerRef), visible: $data.visible">
-                            <!-- ko if: isPlace -->
+                            <!-- ko if: $data.isPlace -->
                             <div class="d-flex w-100 justify-content-between">
                                 <h6 class="mb-1">
-                                    <!-- ko if: rating -->
+                                    <!-- ko if: $data.rating -->
                                         <span style="min-width: 30px;" class="badge" data-bind="text: rating, style: {backgroundColor: ratingColor}"></span>
                                     <!-- /ko -->
                                     <span data-bind="text: name"></span>
                                 </h6>
                             </div>
                             <!-- /ko -->
-                            <!-- ko ifnot: isPlace -->
+                            <!-- ko ifnot: $data.isPlace -->
                             <div class="d-flex w-100 justify-content-between">
                                 <h6 class="mb-1">
                                     <!-- ko if: venue.rating -->
