@@ -236,16 +236,55 @@ export default class ViewModel {
         this.listItems.replace(item, newItem);
     }
 
-    highlightMarker(markerId) {
-        for (let i in this.markers) {
-            if (i == markerId) {
-                this.markers[i].div.classList.add('marker-open');
-                map.panTo(this.markers[i].getPosition());
-                map.setZoom(17);
-            } else {
-                this.markers[i].div.classList.remove('marker-open');
+    async openMarker(markerId) {
+        const marker = this.markers[markerId];
+        if (!marker) return;
+        const item = marker.item;
+        // Removes marker-open class from all markers
+        this.closeMarkers();
+        // Adds marker-open class to this marker
+        marker.div.classList.add('marker-open');
+
+        // Checking whether the marker contains google places object or
+        // Foursquare venue object
+        if (marker.isPlace) {
+            const placeId = item.place_id;
+
+            // Checking if we already have details saved for this place
+            if (!this.placeDetails[placeId]) {
+                const details = await getPlaceDetails(placeId);
+                this.placeDetails[placeId] = details;
+
+                // We want google ratings to be in scale from 0 to 10
+                if (details.rating) {
+                    details.rating *= 2;
+                }
             }
+
+            this.clearModals();
+            this.activePlace(this.placeDetails[placeId]);
+            this.showPlaceModal(true);
+            this.showingPlaceReviews(false);
+
+        } else {
+
+            // Checking if we already have pictures for this venue
+            if (!this.venueImages[item.venue.id]) {
+                const photos = await getVenueImages(item.venue.id);
+                const photoUrls = photos.items.map(photo => {
+                    return `${photo.prefix}height300${photo.suffix}`;
+                });
+
+                this.venueImages[item.venue.id] = photoUrls;
+            }
+
+            this.clearModals();
+            this.activeVenue(item);
+            this.showVenueModal(true);
         }
+
+        map.panTo(marker.getPosition());
+        map.setZoom(17);
     }
 
     // Returns list of photos for the active (open) venue
@@ -342,50 +381,8 @@ export default class ViewModel {
     createMarker(item) {
         let marker = new VenueMarker(item, map);
 
-        marker.addListener('click', async event => {
-            const markerItem = event.marker.item;
-            // Removes marker-open class from all markers
-            this.closeMarkers();
-            // Adds marker-open class to this marker
-            event.marker.div.classList.add('marker-open');
-
-            // Checking whether the marker contains google places object or
-            // Foursquare venue object
-            if (event.marker.isPlace) {
-                const placeId = markerItem.place_id;
-
-                // Checking if we already have details saved for this place
-                if (!this.placeDetails[placeId]) {
-                    const details = await getPlaceDetails(placeId);
-                    this.placeDetails[placeId] = details;
-
-                    // We want google ratings to be in scale from 0 to 10
-                    if (details.rating) {
-                        details.rating *= 2;
-                    }
-                }
-
-                this.clearModals();
-                this.activePlace(this.placeDetails[placeId]);
-                this.showPlaceModal(true);
-                this.showingPlaceReviews(false);
-
-            } else {
-
-                // Checking if we already have pictures for this venue
-                if (!this.venueImages[markerItem.venue.id]) {
-                    const photos = await getVenueImages(markerItem.venue.id);
-                    const photoUrls = photos.items.map(photo => {
-                        return `${photo.prefix}height300${photo.suffix}`;
-                    });
-
-                    this.venueImages[markerItem.venue.id] = photoUrls;
-                }
-
-                this.clearModals();
-                this.activeVenue(markerItem);
-                this.showVenueModal(true);
-            }
+        marker.addListener('click', event => {
+            this.openMarker(event.marker.id);
         });
 
         this.markers[marker.id] = marker;
